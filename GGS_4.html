@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Число GGS_4 — Супер-GGS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0d0805;
+    --bg-rich: #160d07;
+    --card-latte: #d8c5a8;
+    --card-soft: #e8dcc4;
+    --accent-gold: #d4a574;
+    --accent-bright: #f0c987;
+    --accent-deep: #a07a4f;
+    --accent-neon: #ffd57a;
+    --text-cream: #f5e6d3;
+    --text-soft: #c9b896;
+    --text-muted: #8a7960;
+    --border-gold: rgba(212, 165, 116, 0.25);
+    --border-soft: rgba(212, 165, 116, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-cream);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+    position: relative;
+    cursor: crosshair;
+  }
+
+  /* === Canvas фоновый (звезды, искры, галактика) === */
+  #cosmosCanvas {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+  }
+
+  /* Атмосферный кофейный градиент поверх canvas */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(160, 122, 79, 0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 90%, rgba(212, 165, 116, 0.10) 0%, transparent 60%),
+      radial-gradient(ellipse 100% 50% at 50% 50%, rgba(26, 16, 9, 0.4) 0%, transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* === Навигация === */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 22px 5vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    background: linear-gradient(180deg, rgba(13, 8, 5, 0.85) 0%, rgba(13, 8, 5, 0) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent-gold);
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-mark {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--accent-gold);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-bright);
+    position: relative;
+    box-shadow: 0 0 12px rgba(240, 201, 135, 0.4);
+  }
+
+  .logo-mark::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 1px solid var(--border-gold);
+    border-radius: 50%;
+    opacity: 0.5;
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.15); opacity: 0; }
+  }
+
+  nav ul { display: flex; gap: 36px; list-style: none; }
+
+  nav a {
+    color: var(--text-soft);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    position: relative;
+    transition: color 0.4s ease;
+  }
+
+  nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--accent-gold);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 8px var(--accent-gold);
+  }
+
+  nav a:hover { color: var(--accent-bright); }
+  nav a:hover::after { width: 100%; }
+
+  /* === Hero секция === */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 5vw 60px;
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.2s forwards;
+    z-index: 2;
+  }
+
+  .hero-eyebrow::before,
+  .hero-eyebrow::after {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-deep), transparent);
+  }
+
+  /* === Гигантский заголовок с премиальным глитчем (без рамок) === */
+  .hero-title-wrap {
+    position: relative;
+    display: inline-block;
+    padding: 0 40px;
+    z-index: 2;
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(4rem, 14vw, 11rem);
+    font-weight: 600;
+    line-height: 0.95;
+    margin-bottom: 24px;
+    color: var(--accent-bright);
+    letter-spacing: -0.02em;
+    position: relative;
+    display: inline-block;
+    opacity: 0;
+    animation: fadeUp 1.2s ease 0.4s forwards, neonPulse 4s ease-in-out 1.6s infinite, titleSway 8s ease-in-out infinite;
+    
+    /* Чёткое свечение без лишнего размытия */
+    text-shadow:
+      0 0 6px rgba(255, 230, 180, 0.6),
+      0 0 18px rgba(240, 201, 135, 0.4),
+      0 0 35px rgba(212, 165, 116, 0.2);
+      
+    /* Улучшаем качество рендера текста */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    backface-visibility: hidden;
+  }
+
+  .hero h1 sub {
+    font-size: 0.35em;
+    vertical-align: sub;
+    color: var(--accent-deep);
+    margin-left: -0.1em;
+  }
+
+  /* Слои глитча */
+  .gl-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .gl-red {
+    color: #ff5252;
+    animation: glitchRed 3.5s infinite steps(1, end);
+  }
+
+  .gl-blue {
+    color: #4dd0e1;
+    animation: glitchBlue 4s infinite steps(1, end);
+  }
+
+  /* Плавающий глитч без clip-path (никаких рамок!) */
+  @keyframes glitchRed {
+    0%, 86%, 100% { transform: translate(0, 0); opacity: 0; }
+    87% { transform: translate(-3px, 2px) skewX(-5deg); opacity: 0.8; }
+    88% { transform: translate(2px, -1px); opacity: 0.4; }
+    89% { transform: translate(-4px, 1px) skewX(5deg); opacity: 0.7; }
+    90% { transform: translate(0, 0); opacity: 0; }
+    91% { transform: translate(3px, -2px); opacity: 0.6; }
+    92% { transform: translate(0, 0); opacity: 0; }
+  }
+
+  @keyframes glitchBlue {
+    0%, 90%, 100% { transform: translate(0, 0); opacity: 0; }
+    91% { transform: translate(3px, -2px) skewX(5deg); opacity: 0.8; }
+    92% { transform: translate(-2px, 1px); opacity: 0.4; }
+    93% { transform: translate(4px, -1px) skewX(-5deg); opacity: 0.7; }
+    94% { transform: translate(0, 0); opacity: 0; }
+    95% { transform: translate(-3px, 2px); opacity: 0.6; }
+    96% { transform: translate(0, 0); opacity: 0; }
+  }
+
+  @keyframes neonPulse {
+    0%, 100% {
+      text-shadow:
+        0 0 6px rgba(255, 230, 180, 0.6),
+        0 0 18px rgba(240, 201, 135, 0.4),
+        0 0 35px rgba(212, 165, 116, 0.2);
+    }
+    50% {
+      text-shadow:
+        0 0 8px rgba(255, 240, 200, 0.9),
+        0 0 25px rgba(255, 213, 122, 0.6),
+        0 0 50px rgba(240, 201, 135, 0.4);
+    }
+  }
+
+  @keyframes titleSway {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(2px, -3px) rotate(0.3deg); }
+    50% { transform: translate(-1px, 2px) rotate(-0.2deg); }
+    75% { transform: translate(3px, 1px) rotate(0.1deg); }
+  }
+
+  .hero-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+    color: var(--text-soft);
+    margin-bottom: 60px;
+    font-weight: 400;
+    opacity: 0;
+    animation: fadeUp 1.2s ease 0.6s forwards;
+    z-index: 2;
+    position: relative;
+  }
+
+  .hero-subtitle .accent {
+    color: var(--accent-gold);
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    animation: fadeUp 1s ease 1s forwards;
+    z-index: 2;
+  }
+
+  .scroll-hint .line {
+    width: 1px;
+    height: 50px;
+    background: linear-gradient(180deg, var(--accent-gold), transparent);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scroll-hint .line::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: var(--accent-bright);
+    animation: scrollDown 2.5s ease-in-out infinite;
+  }
+
+  @keyframes scrollDown {
+    0% { transform: translateY(-20px); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(50px); opacity: 0; }
+  }
+
+  /* === Общие секции === */
+  section {
+    padding: 100px 5vw;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    margin-bottom: 24px;
+    display: inline-block;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 500;
+    color: var(--text-cream);
+    margin-bottom: 40px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .section-title .gold {
+    color: var(--accent-gold);
+    font-style: italic;
+  }
+
+  /* === Карточка формулы === */
+  .formula-section {
+    display: flex;
+    justify-content: center;
+    padding-top: 40px;
+  }
+
+  .formula-card {
+    background: linear-gradient(135deg, var(--card-soft) 0%, var(--card-latte) 100%);
+    border-radius: 4px;
+    padding: 70px 60px;
+    max-width: 900px;
+    width: 100%;
+    position: relative;
+    box-shadow: 
+      0 30px 80px rgba(0, 0, 0, 0.5),
+      0 0 0 1px var(--border-gold),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+  }
+
+  .formula-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+  }
+
+  .formula-card::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(160, 122, 79, 0.2);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+
+  .formula-label {
+    text-align: center;
+    font-size: 0.75rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    margin-bottom: 30px;
+    font-weight: 500;
+  }
+
+  .formula {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.4rem, 3.8vw, 2.6rem);
+    text-align: center;
+    color: #2a1810;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    position: relative;
+    z-index: 1;
+  }
+
+  .formula .var { font-style: italic; color: #5c3a1f; font-weight: 600; }
+  .formula sup { font-size: 0.65em; font-weight: 500; color: #6b4423; }
+  .formula .op { color: var(--accent-deep); margin: 0 4px; }
+
+  .formula-caption {
+    text-align: center;
+    margin-top: 36px;
+    font-size: 0.95rem;
+    color: #6b5a45;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  /* === Блок описания === */
+  .description-section {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .description-card {
+    background: linear-gradient(180deg, rgba(232, 220, 196, 0.06) 0%, rgba(216, 197, 168, 0.04) 100%);
+    border: 1px solid var(--border-soft);
+    border-radius: 4px;
+    padding: 60px 50px;
+    position: relative;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .description-card::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 20%;
+    right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+  }
+
+  .description-quote {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 5rem;
+    color: var(--accent-gold);
+    opacity: 0.25;
+    line-height: 1;
+  }
+
+  .description-text {
+    font-size: clamp(1rem, 1.8vw, 1.25rem);
+    line-height: 1.85;
+    color: var(--text-cream);
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+  }
+
+  .description-text .highlight {
+    color: var(--accent-bright);
+    font-weight: 500;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1em;
+  }
+
+  .description-text .em {
+    color: var(--accent-gold);
+    font-weight: 500;
+  }
+
+  /* === Бегущая строка нулей === */
+  .marquee-section {
+    padding: 80px 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+
+  .marquee-section::before,
+  .marquee-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 200px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .marquee-section::before { left: 0; background: linear-gradient(90deg, var(--bg-deep), transparent); }
+  .marquee-section::after { right: 0; background: linear-gradient(270deg, var(--bg-deep), transparent); }
+
+  .marquee {
+    display: flex;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .marquee-track {
+    display: flex;
+    gap: 20px;
+    animation: scroll 40s linear infinite;
+    flex-shrink: 0;
+  }
+
+  .marquee-track span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(2rem, 5vw, 4rem);
+    color: var(--accent-gold);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+  }
+
+  .marquee-track span:nth-child(3n) {
+    color: var(--accent-bright);
+    opacity: 0.9;
+    text-shadow: 0 0 15px rgba(240, 201, 135, 0.5);
+  }
+
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* === Гигантский живой счётчик === */
+  .counter-section {
+    text-align: center;
+    padding: 80px 5vw 120px;
+    position: relative;
+  }
+
+  .counter-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    margin-bottom: 40px;
+  }
+
+  .counter-box {
+    max-width: 900px;
+    margin: 0 auto;
+    background: linear-gradient(180deg, rgba(216, 197, 168, 0.08) 0%, rgba(216, 197, 168, 0.02) 100%);
+    border: 1px solid var(--border-soft);
+    border-radius: 4px;
+    padding: 50px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .counter-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+  }
+
+  .counter-box::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(240, 201, 135, 0.08) 0%, transparent 60%);
+    animation: heavyBreathing 1.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes heavyBreathing {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+
+  .counter-status {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--text-soft);
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .warning-banner {
+    display: inline-block;
+    margin-bottom: 24px;
+    padding: 10px 24px;
+    background: rgba(255, 100, 50, 0.12);
+    border: 1px solid rgba(255, 120, 60, 0.4);
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #ff9050;
+    text-shadow: 0 0 8px rgba(255, 120, 60, 0.6);
+    animation: warningBlink 0.8s ease-in-out infinite;
+    position: relative;
+    z-index: 2;
+  }
+
+  .warning-banner::before { content: '⚠'; margin-right: 8px; }
+
+  @keyframes warningBlink {
+    0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(255, 120, 60, 0.3); }
+    50% { opacity: 0.7; box-shadow: 0 0 30px rgba(255, 120, 60, 0.5); }
+  }
+
+  .counter-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    color: var(--accent-bright);
+    font-weight: 700;
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 20px rgba(240, 201, 135, 0.6), 0 0 40px rgba(240, 201, 135, 0.3);
+    position: relative;
+    z-index: 2;
+    line-height: 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .counter-value .digit-stream {
+    display: inline-block;
+    min-width: 8em;
+    text-align: left;
+  }
+
+  .counter-value .percent {
+    color: var(--accent-gold);
+    font-size: 0.5em;
+    margin-left: 12px;
+    font-weight: 500;
+  }
+
+  .counter-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(212, 165, 116, 0.1);
+    border-radius: 1px;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 24px;
+  }
+
+  .counter-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent-deep), var(--accent-gold), var(--accent-bright));
+    border-radius: 1px;
+    transition: width 0.3s ease;
+    position: relative;
+    box-shadow: 0 0 15px var(--accent-gold);
+  }
+
+  .counter-log {
+    margin-top: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: left;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 80px;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+    border-top: 1px dashed var(--border-soft);
+    padding-top: 16px;
+  }
+
+  .counter-log::before {
+    content: '> лог загрузки:';
+    display: block;
+    color: var(--accent-deep);
+    margin-bottom: 8px;
+    font-size: 0.7rem;
+  }
+
+  .log-line {
+    color: var(--text-soft);
+    margin-bottom: 4px;
+    opacity: 0;
+    animation: logFadeIn 0.3s ease forwards;
+  }
+
+  .log-line .ts { color: var(--accent-deep); margin-right: 10px; }
+
+  @keyframes logFadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 0.8; transform: translateY(0); }
+  }
+
+  .counter-note {
+    margin-top: 24px;
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* === Подпись / футер === */
+  footer {
+    padding: 80px 5vw 60px;
+    text-align: center;
+    border-top: 1px solid var(--border-soft);
+    position: relative;
+    z-index: 1;
+  }
+
+  footer::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+  }
+
+  .signature {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    color: var(--text-soft);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  .signature .name {
+    color: var(--accent-bright);
+    font-style: normal;
+    font-weight: 600;
+    display: block;
+    margin-top: 16px;
+    font-size: 0.85em;
+    letter-spacing: 0.05em;
+  }
+
+  .signature .name::before, .signature .name::after {
+    content: '—';
+    color: var(--accent-deep);
+    margin: 0 12px;
+  }
+
+  .footer-meta {
+    margin-top: 40px;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 1s ease, transform 1s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  #particleCanvas {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 18px 5vw; }
+    nav ul { display: none; }
+    .hero { padding: 100px 5vw 40px; }
+    .formula-card { padding: 40px 25px; }
+    .formula { font-size: 1.2rem; }
+    .description-card { padding: 40px 25px; }
+    .counter-box { padding: 35px 20px; }
+    section { padding: 60px 5vw; }
+  }
+</style>
+</head>
+<body>
+
+  <canvas id="cosmosCanvas"></canvas>
+  <canvas id="particleCanvas"></canvas>
+
+  <nav>
+    <div class="logo">
+      <span class="logo-mark">G</span>
+      <span>GGS_4</span>
+    </div>
+    <ul>
+      <li><a href="#formula">Формула</a></li>
+      <li><a href="#description">Сущность</a></li>
+      <li><a href="#scale">Масштаб</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-eyebrow">Макро- и микромир · 数学 · Аномалия</div>
+    <div class="hero-title-wrap">
+      <h1>
+        <span class="gl-layer gl-red" aria-hidden="true">GGS<sub>4</sub></span>
+        <span class="gl-layer gl-blue" aria-hidden="true">GGS<sub>4</sub></span>
+        GGS<sub>4</sub>
+      </h1>
+    </div>
+    <p class="hero-subtitle">Число <span class="accent">Супер-GGS</span> — за пределами воображения</p>
+    <div class="scroll-hint">
+      <span>Исследовать</span>
+      <div class="line"></div>
+    </div>
+  </header>
+
+  <section class="formula-section" id="formula">
+    <div class="formula-card reveal">
+      <div class="formula-label">Математическая формула</div>
+      <div class="formula">
+        <span class="var">GGS<sub style="font-size:0.6em;">4</sub></span>
+        <span class="op">=</span>
+        10<sup>(80 <span class="op">·</span> <span class="var">G</span><sub style="font-size:0.55em;">64</sub> <span class="op">+</span> 50 <span class="op">·</span> 10<sup>127</sup> <span class="op">+</span> 200 <span class="op">·</span> 10<sup>9</sup>)</sup>
+      </div>
+      <div class="formula-caption">десять в степени невообразимого</div>
+    </div>
+  </section>
+
+  <section class="description-section" id="description">
+    <div class="section-label reveal">Сущность числа</div>
+    <h2 class="section-title reveal">Что такое <span class="gold">GGS<sub style="font-size:0.55em;">4</sub></span>?</h2>
+    <div class="description-card reveal">
+      <div class="description-quote">"</div>
+      <p class="description-text">
+        Это число состоит из <span class="highlight">единицы</span> и колоссального количества нулей 
+        (<span class="em">80 Чисел Грэма</span> + <span class="em">50 октиллионов Гуголов</span> + 
+        <span class="em">200 миллиардов</span> обычных нулей). 
+        Для записи этого числа не хватит места <span class="highlight">ни в нашей Вселенной</span>, 
+        ни во всех её измерениях.
+      </p>
+    </div>
+  </section>
+
+  <section class="marquee-section" id="scale">
+    <div class="marquee">
+      <div class="marquee-track" id="marqueeTrack">
+        <span>0000000000</span><span>0000000000</span><span>0000000000</span><span>0000000000</span>
+        <span>0000000000</span><span>0000000000</span><span>0000000000</span><span>0000000000</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="counter-section">
+    <div class="counter-label reveal">Индикатор вычисления</div>
+    <div class="counter-box reveal">
+      <div class="warning-banner" id="warningBanner">Внимание! Память перегружена! Найдено Супер-Число!</div>
+      <div class="counter-status">Система пытается осознать масштаб числа…</div>
+      <div class="counter-value">
+        <span class="digit-stream" id="counterStream">000000000000</span><span class="percent">%</span>
+      </div>
+      <div class="counter-bar">
+        <div class="counter-bar-fill" id="counterBar"></div>
+      </div>
+      <div class="counter-log" id="counterLog"></div>
+      <div class="counter-note">Загружено лишь бесконечно малая часть — число невообразимо огромно</div>
+    </div>
+  </section>
+
+  <footer>
+    <p class="signature">
+      Автор числа GGS<sub style="font-size:0.6em;">4</sub> — юный математик и исследователь макро- и микромира
+      <span class="name">придумано в 8 лет</span>
+    </p>
+    <div class="footer-meta">Супер-GGS · Гигантское число · MMXXIV</div>
+  </footer>
+
+<script>
+// ==========================================
+//  Retina-качество для Canvas (фикс пикселей)
+// ==========================================
+const cosmosCanvas = document.getElementById('cosmosCanvas');
+const ctx = cosmosCanvas.getContext('2d');
+const particleCanvas = document.getElementById('particleCanvas');
+const pctx = particleCanvas.getContext('2d');
+
+let W = 0, H = 0, dpr = 1;
+
+function resize() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2); // Ограничиваем 2x для производительности
+  W = window.innerWidth;
+  H = window.innerHeight;
+  
+  cosmosCanvas.width = W * dpr;
+  cosmosCanvas.height = H * dpr;
+  cosmosCanvas.style.width = W + 'px';
+  cosmosCanvas.style.height = H + 'px';
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
+
+  particleCanvas.width = W * dpr;
+  particleCanvas.height = H * dpr;
+  particleCanvas.style.width = W + 'px';
+  particleCanvas.style.height = H + 'px';
+  pctx.setTransform(1, 0, 0, 1, 0, 0);
+  pctx.scale(dpr, dpr);
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ==========================================
+//  1. КОСМИЧЕСКИЙ ФОН
+// ==========================================
+class Spark {
+  constructor() { this.reset(true); }
+  reset(initial = false) {
+    this.x = Math.random() * W;
+    this.y = initial ? Math.random() * H : H + 10;
+    this.size = Math.random() * 1.8 + 0.4;
+    this.speedY = -(Math.random() * 0.4 + 0.1);
+    this.speedX = (Math.random() - 0.5) * 0.3;
+    this.life = Math.random() * 1.0 + 0.3;
+    this.maxLife = this.life;
+    this.flicker = Math.random() * Math.PI * 2;
+    this.flickerSpeed = Math.random() * 0.08 + 0.04;
+  }
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    this.flicker += this.flickerSpeed;
+    this.life -= 0.003;
+    if (this.life <= 0 || this.y < -20 || this.x < -20 || this.x > W + 20) this.reset();
+  }
+  draw() {
+    const alpha = (this.life / this.maxLife) * (0.6 + Math.sin(this.flicker) * 0.4);
+    const glow = this.size * 4;
+    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, glow);
+    gradient.addColorStop(0, `rgba(255, 213, 122, ${alpha})`);
+    gradient.addColorStop(0.4, `rgba(240, 201, 135, ${alpha * 0.5})`);
+    gradient.addColorStop(1, 'rgba(212, 165, 116, 0)');
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, glow, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = `rgba(255, 230, 180, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+class Star {
+  constructor() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.size = Math.random() * 1.2 + 0.3;
+    this.baseAlpha = Math.random() * 0.6 + 0.2;
+    this.flicker = Math.random() * Math.PI * 2;
+    this.flickerSpeed = Math.random() * 0.02 + 0.005;
+    this.depth = Math.random();
+  }
+  update() { this.flicker += this.flickerSpeed; }
+  draw(scrollOffset) {
+    const alpha = this.baseAlpha * (0.5 + Math.sin(this.flicker) * 0.5);
+    let y = (this.y + scrollOffset * this.depth * 0.3) % H;
+    if (y < 0) y += H;
+    ctx.fillStyle = `rgba(245, 230, 211, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(this.x, y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+class Galaxy {
+  constructor() {
+    this.particles = [];
+    const arms = 3;
+    const pointsPerArm = 280;
+    for (let a = 0; a < arms; a++) {
+      for (let i = 0; i < pointsPerArm; i++) {
+        const t = i / pointsPerArm;
+        const radius = t * Math.min(W, H) * 0.55;
+        const armAngle = (a / arms) * Math.PI * 2;
+        const theta = armAngle + t * 4 + Math.random() * 0.15;
+        this.particles.push({
+          baseR: radius, baseTheta: theta,
+          size: Math.random() * 1.3 + 0.3,
+          alpha: (1 - t) * 0.6 + 0.1,
+          color: Math.random() > 0.7 ? 'bright' : 'normal'
+        });
+      }
+    }
+  }
+  update() { this.angle += 0.0008; }
+  draw(scrollOffset) {
+    const cx = W * 0.5, cy = H * 0.5 + (scrollOffset * 0.15);
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(this.angle);
+    const coreGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 120);
+    coreGradient.addColorStop(0, 'rgba(255, 230, 180, 0.4)');
+    coreGradient.addColorStop(0.3, 'rgba(240, 201, 135, 0.2)');
+    coreGradient.addColorStop(1, 'rgba(212, 165, 116, 0)');
+    ctx.fillStyle = coreGradient;
+    ctx.beginPath();
+    ctx.arc(0, 0, 120, 0, Math.PI * 2);
+    ctx.fill();
+    this.particles.forEach(p => {
+      const x = Math.cos(p.baseTheta) * p.baseR;
+      const y = Math.sin(p.baseTheta) * p.baseR;
+      ctx.fillStyle = p.color === 'bright' ? `rgba(255, 213, 122, ${p.alpha})` : `rgba(212, 165, 116, ${p.alpha})`;
+      ctx.beginPath();
+      ctx.arc(x, y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+}
+
+const sparks = Array.from({ length: 60 }, () => new Spark());
+const stars = Array.from({ length: 150 }, () => new Star());
+const galaxy = new Galaxy();
+galaxy.angle = 0;
+
+let scrollOffsetParallax = 0;
+
+function animateCosmos() {
+  ctx.clearRect(0, 0, W, H);
+  galaxy.update();
+  galaxy.draw(scrollOffsetParallax);
+  stars.forEach(s => { s.update(); s.draw(scrollOffsetParallax); });
+  sparks.forEach(s => { s.update(); s.draw(); });
+  requestAnimationFrame(animateCosmos);
+}
+animateCosmos();
+
+// ==========================================
+//  2. ВЗРЫВ ЧАСТИЦ ПРИ КЛИКЕ
+// ==========================================
+class BurstParticle {
+  constructor(x, y) {
+    this.x = x; this.y = y;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 7 + 2;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed - 2;
+    this.life = 1.0;
+    this.decay = Math.random() * 0.015 + 0.012;
+    this.size = Math.random() * 18 + 10;
+    this.char = Math.random() > 0.5 ? '0' : '1';
+    this.rotation = Math.random() * Math.PI * 2;
+    this.rotationSpeed = (Math.random() - 0.5) * 0.2;
+    this.gravity = 0.15;
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    this.vy += this.gravity; this.vx *= 0.98;
+    this.life -= this.decay; this.rotation += this.rotationSpeed;
+  }
+  draw() {
+    if (this.life <= 0) return;
+    pctx.save();
+    pctx.translate(this.x, this.y);
+    pctx.rotate(this.rotation);
+    pctx.font = `bold ${this.size}px 'JetBrains Mono', monospace`;
+    pctx.textAlign = 'center';
+    pctx.textBaseline = 'middle';
+    pctx.shadowColor = 'rgba(255, 213, 122, 0.9)';
+    pctx.shadowBlur = 15;
+    pctx.fillStyle = `rgba(255, 213, 122, ${this.life})`;
+    pctx.fillText(this.char, 0, 0);
+    pctx.shadowBlur = 0;
+    pctx.fillStyle = `rgba(255, 240, 200, ${this.life * 0.8})`;
+    pctx.fillText(this.char, 0, 0);
+    pctx.restore();
+  }
+}
+
+let burstParticles = [];
+document.addEventListener('click', (e) => {
+  const count = 25 + Math.floor(Math.random() * 10);
+  for (let i = 0; i < count; i++) burstParticles.push(new BurstParticle(e.clientX, e.clientY));
+});
+
+function animateBurst() {
+  pctx.clearRect(0, 0, W, H);
+  burstParticles = burstParticles.filter(p => p.life > 0);
+  burstParticles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(animateBurst);
+}
+animateBurst();
+
+// ==========================================
+//  3. ПАРАЛЛАКС И СЧЁТЧИК
+// ==========================================
+window.addEventListener('scroll', () => {
+  scrollOffsetParallax = window.scrollY;
+}, { passive: true });
+
+const counterStream = document.getElementById('counterStream');
+const counterBar = document.getElementById('counterBar');
+const counterLog = document.getElementById('counterLog');
+
+let counterProgress = 0;
+let counterTarget = 0.000000000001;
+let counterVelocity = 0;
+
+const logMessages = [
+  'инициализация ядра...', 'выделение памяти: ∞ эксабайт...', 'загрузка 80 Чисел Грэма...',
+  'обработка 50 октиллионов Гуголов...', 'генерация 200 миллиардов нулей...', 'критическое переполнение стека',
+  'попытка сжатия данных...', 'вселенная недостаточно велика', 'превышен лимит пространства-времени',
+  'размер числа: за пределами Планка', 'продолжаю вычисление...', 'ВНИМАНИЕ: реальность нестабильна',
+  'перезапуск модуля...', 'обнаружена аномалия GGS_4'
+];
+
+let logIndex = 0, lastLogTime = 0;
+
+function addLogLine() {
+  const now = Date.now();
+  if (now - lastLogTime < 350) return;
+  lastLogTime = now;
+  const msg = logMessages[logIndex % logMessages.length];
+  logIndex++;
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.innerHTML = `<span class="ts">[${now.toString().substring(7)}]</span>${msg}`;
+  counterLog.prepend(line);
+  while (counterLog.children.length > 4) counterLog.removeChild(counterLog.lastChild);
+}
+
+function formatCounter(n) {
+  return n.toFixed(13).substring(0, 14);
+}
+
+let tick = 0;
+function updateCounter() {
+  tick++;
+  if (Math.random() < 0.15) counterTarget = Math.random() * 0.0000000001;
+  const diff = counterTarget - counterProgress;
+  counterVelocity += diff * 0.05;
+  counterVelocity *= 0.9;
+  counterProgress += counterVelocity;
+  counterStream.textContent = formatCounter(counterProgress);
+  if (tick % 8 === 0) {
+    let chaos = '';
+    for (let i = 0; i < 13; i++) chaos += Math.floor(Math.random() * 10);
+    counterStream.textContent = '0.' + chaos;
+  }
+  counterBar.style.width = Math.min(counterProgress * 50, 3) + '%';
+  if (tick % 4 === 0) addLogLine();
+  if (tick % 50 === 0) {
+    const warnings = [
+      'Внимание! Память перегружена! Найдено Супер-Число!',
+      'Критическая ошибка! Число больше Вселенной!',
+      'Система не справляется! GGS_4 неумолим!',
+      'Превышен предел пространства-времени!'
+    ];
+    document.getElementById('warningBanner').textContent = warnings[Math.floor(Math.random() * warnings.length)];
+  }
+}
+setInterval(updateCounter, 80);
+
+// Параллакс курсора
+const hero = document.querySelector('.hero h1');
+document.addEventListener('mousemove', (e) => {
+  const x = (e.clientX / window.innerWidth - 0.5) * 15;
+  const y = (e.clientY / window.innerHeight - 0.5) * 10;
+  if (hero) hero.style.transform = `translate(${x}px, ${y}px)`;
+});
+
+// Появление при скролле
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+reveals.forEach(el => observer.observe(el));
+
+document.querySelectorAll('nav a').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const targetEl = document.querySelector(link.getAttribute('href'));
+    if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// Бегущая строка дублирование
+const marqueeTrack = document.getElementById('marqueeTrack');
+marqueeTrack.innerHTML += marqueeTrack.innerHTML;
+</script>
+
+</body>
+</html>
